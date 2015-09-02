@@ -1,0 +1,22 @@
+# See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
+'context-menu':
+  'atom-text-editor': [
+    {
+      'label': 'Toggle backspace-death'
+      'command': 'backspace-death:toggle'
+    }
+  ]
+'menu': [
+  {
+    'label': 'Packages'
+    'submenu': [
+      'label': 'backspace-death'
+      'submenu': [
+        {
+          'label': 'Toggle'
+          'command': 'backspace-death:toggle'
+        }
+      ]
+    ]
+  }
+]
