@@ -12,18 +12,14 @@ module.exports = BackspaceDeath =
   _listeners: []
 
   activate: ->
-    # @subscriptions = new CompositeDisposable
-    atom.commands.add 'atom-workspace', 'backspace-death:toggle': => @toggle()
-
-  toggle: ->
-    console.log 'BackspaceDeath was toggled!'
-    if @_isActive then @_stop() else @_start()
+    @_start()
 
   _start: ->
+    return if @_isActive
     @_isActive = true
     @_editorEventSubscription = atom.workspace.observeTextEditors (editor) =>
-      view = atom.views.getView(editor)
-      listener = (event) => @_handleKeyDown(editor, event)
+      view = atom.views.getView editor
+      listener = (event) => @_handleKeyDown editor, event
       view.addEventListener 'keydown', listener
       @_listeners.push [view, listener]
 
@@ -37,16 +33,19 @@ module.exports = BackspaceDeath =
       (event.keyCode == KEY_CODES.X and event.metaKey)
 
   _obliterate: (editor) ->
-      editor.setText('')
-      editor.getBuffer().clearUndoStack()
-      try
-        editor.save()
-      catch _
+    editor.setText('')
+    editor.getBuffer().clearUndoStack()
+    try
+      editor.save()
+    catch _
+
+  deactivate: ->
+    @_stop()
 
   _stop: ->
+    return unless @_isActive
     @_isActive = false
-    if @_editorEventSubscription != null
-      @_editorEventSubscription.dispose()
+    @_editorEventSubscription?.dispose()
     for [view, listener] in @_listeners
       view.removeEventListener 'keydown', listener
     @_listeners = []
